@@ -1,0 +1,44 @@
+module AnyCable
+  class Socket
+    class State
+      attr_reader dirty_keys: Array[String]?
+      attr_reader source: Hash[String, String]
+
+      def initialize: (Hash[String, String]) -> void
+      def read: (String key) -> untyped
+      def write: (String key, String val) -> void
+      def changed_fields: () -> Hash[String, String]?
+
+      alias [] read
+      alias []= write
+    end
+
+    attr_reader transmissions: Array[String]
+    attr_reader request_env: Env
+    attr_reader presence: Hash[Symbol, untyped]?
+
+    def initialize: (env: Env) -> void
+    def transmit: (String) -> void
+    def subscribe: (String, String) -> void
+    def unsubscribe: (String, String) -> void
+    def unsubscribe_from_all: (String) -> void
+    def streams: () -> { start: Array[String], stop: Array[String] }
+    def close: () -> void
+    def closed?: () -> bool
+    def stop_streams?: () -> bool
+    def session: () -> untyped
+    def session=: (untyped val) -> untyped
+    def env: () -> Hash[String, untyped]
+    def cstate: () -> State
+    def istate: () -> State
+    def whisper: (String, String) -> void
+    def presence_join: (String, String, String | Hash[untyped, untyped]) -> void
+    def presence_leave: (String) -> void
+
+    private
+
+    def build_rack_env: () -> rackEnv
+    def base_rack_env: () -> rackEnv
+    def build_headers: (untyped headers) -> Hash[String, String]
+  end
+end

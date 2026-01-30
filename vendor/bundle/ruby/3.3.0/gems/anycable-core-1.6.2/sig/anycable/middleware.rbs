@@ -1,0 +1,5 @@
+module AnyCable
+  class Middleware
+    def call: (Symbol, rpcRequest, rpcMetadata) { () -> rpcResponse } -> rpcResponse
+  end
+end

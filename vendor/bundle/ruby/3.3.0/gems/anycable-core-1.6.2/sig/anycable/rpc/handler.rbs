@@ -1,0 +1,26 @@
+module AnyCable
+  module RPC
+    interface _Handler
+      def build_socket: (env: Env) -> Socket
+      def build_env_response: (Socket socket) -> EnvResponse
+      def build_presence_response: (Socket socket) -> PresenceResponse?
+      def logger: () -> Logger
+      def factory: () -> _ConnectionFactory
+    end
+
+    class Handler
+      include _Handler
+      include Handlers::Connect
+      include Handlers::Disconnect
+      include Handlers::Command
+
+      def initialize: (?middleware: MiddlewareChain) -> void
+      def handle: (Symbol cmd, rpcRequest data, ?rpcMetadata meta) -> rpcResponse
+      def supported?: (Symbol cmd) -> bool
+
+      private
+
+      attr_reader middleware: MiddlewareChain
+    end
+  end
+end

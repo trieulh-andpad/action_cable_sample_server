@@ -1,0 +1,5 @@
+Description:
+    Configures your application to work with AnyCable interactively.
+
+Example:
+    rails generate anycable:setup

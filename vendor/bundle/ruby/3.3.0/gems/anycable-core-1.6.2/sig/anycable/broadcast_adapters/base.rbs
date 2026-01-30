@@ -1,0 +1,28 @@
+module AnyCable
+  type broadcastOptions = {exclude_socket: String}
+
+  interface _BroadcastAdapter
+    def raw_broadcast: (String _data) -> void
+    def batching: (?bool enabled) { () -> untyped } -> untyped
+    def start_batching: () -> void
+    def finish_batching: () -> void
+    def batching?: () -> (bool | NilClass)
+    def broadcast: (String stream, String payload, ?broadcastOptions options) -> void
+    def broadcast_command: (String command, **untyped payload) -> void
+    def announce!: () -> void
+  end
+
+  module BroadcastAdapters
+    class Base
+      include _BroadcastAdapter
+
+      private
+
+      def logger: () -> Logger
+      def current_batch: () -> Array[untyped]
+      def maybe_flush_batch: () -> void
+      def batching_enabled_stack: () -> Array[bool]
+      def batching_enabled=: (bool) -> void
+    end
+  end
+end

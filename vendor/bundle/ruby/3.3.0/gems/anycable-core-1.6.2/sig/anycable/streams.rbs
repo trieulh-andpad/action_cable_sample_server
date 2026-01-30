@@ -1,0 +1,8 @@
+module AnyCable
+  module Streams
+    def self.signed: (String) -> String
+    def self.verified: (String) -> String?
+
+    private def self.signature: (String) -> String
+  end
+end

@@ -1,0 +1,10 @@
+module AnyCable
+  module Middlewares
+    class Exceptions < AnyCable::Middleware
+      private
+
+      def notify_exception: (StandardError exp, Symbol method_name, rpcRequest request) -> void
+      def response_class: (Symbol method_name) -> untyped
+    end
+  end
+end

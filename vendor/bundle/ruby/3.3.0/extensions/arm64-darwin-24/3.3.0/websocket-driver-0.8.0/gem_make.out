@@ -1,0 +1,18 @@
+current directory: /Users/trieu.le/Projects/Rails/action_cable_sample_server/vendor/bundle/ruby/3.3.0/gems/websocket-driver-0.8.0/ext/websocket-driver
+/Users/trieu.le/.rbenv/versions/3.3.5/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/trieu.le/Projects/Rails/action_cable_sample_server/vendor/bundle/ruby/3.3.0/gems/websocket-driver-0.8.0/ext/websocket-driver
+make DESTDIR\= sitearchdir\=./.gem.20260126-2658-d1fluv sitelibdir\=./.gem.20260126-2658-d1fluv clean
+
+current directory: /Users/trieu.le/Projects/Rails/action_cable_sample_server/vendor/bundle/ruby/3.3.0/gems/websocket-driver-0.8.0/ext/websocket-driver
+make DESTDIR\= sitearchdir\=./.gem.20260126-2658-d1fluv sitelibdir\=./.gem.20260126-2658-d1fluv
+compiling websocket_mask.c
+linking shared-object websocket_mask.bundle
+
+current directory: /Users/trieu.le/Projects/Rails/action_cable_sample_server/vendor/bundle/ruby/3.3.0/gems/websocket-driver-0.8.0/ext/websocket-driver
+make DESTDIR\= sitearchdir\=./.gem.20260126-2658-d1fluv sitelibdir\=./.gem.20260126-2658-d1fluv install
+/usr/bin/install -c -m 0755 websocket_mask.bundle ./.gem.20260126-2658-d1fluv
+
+current directory: /Users/trieu.le/Projects/Rails/action_cable_sample_server/vendor/bundle/ruby/3.3.0/gems/websocket-driver-0.8.0/ext/websocket-driver
+make DESTDIR\= sitearchdir\=./.gem.20260126-2658-d1fluv sitelibdir\=./.gem.20260126-2658-d1fluv clean

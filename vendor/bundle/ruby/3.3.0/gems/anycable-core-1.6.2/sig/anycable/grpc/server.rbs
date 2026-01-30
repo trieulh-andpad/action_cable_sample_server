@@ -1,0 +1,21 @@
+module AnyCable
+  module GRPC
+    class Server
+      include _Server
+
+      attr_reader grpc_server: untyped
+      attr_reader host: String
+
+      def initialize: (host: String, ?logger: Logger?, **untyped options) -> void
+
+      private
+
+      attr_reader start_thread: Thread
+
+      def logger: () -> Logger
+      def build_server: (**untyped options) -> untyped
+      def build_health_checker: () -> untyped
+      def server_credentials: (?cert: String?, ?pkey: String?) -> (::GRPC::Core::ServerCredentials | :this_port_is_insecure)
+    end
+  end
+end
