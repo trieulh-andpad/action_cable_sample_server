@@ -33,4 +33,9 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Ignore SSL certificates (generated locally)
+/config/ssl/*
+!/config/ssl/.keep
+
 /vendor/bundle
+.env

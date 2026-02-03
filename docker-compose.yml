@@ -1,14 +1,13 @@
 services:
   web:
     build: .
-    command: bin/rails server -b 0.0.0.0 -p 3000
+    command: sh -c "rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0 -p 3000"
     volumes:
       - .:/app
     ports:
       - "3000:3000"
     environment:
       RAILS_ENV: development
-      ANYCABLE_HTTP_BROADCAST_URL: http://anycable-go:8080/_broadcast
 
   rpc:
     build: .
@@ -17,12 +16,12 @@ services:
       - .:/app
     environment:
       RAILS_ENV: development
-      ANYCABLE_HTTP_BROADCAST_URL: http://anycable-go:8080/_broadcast
       ANYCABLE_RPC_HOST: 0.0.0.0:50051
+      ANYCABLE_REDIS_URL: redis://redis:6379/0
 
   anycable-go:
     image: anycable/anycable-go:latest
-    command: ["anycable-go", "--config", "/app/anycable.toml"]
+    command: anycable-go --config /app/anycable.toml
     volumes:
       - .:/app:ro
     ports:
@@ -31,8 +30,11 @@ services:
       ANYCABLE_RPC_HOST: rpc:50051
       ANYCABLE_SECRET: anycable-local-secret
       ANYCABLE_REDIS_URL: redis://redis:6379/0
+      ANYCABLE_HEADERS: "cookie,x-access-token,authorization"
       ANYCABLE_HOST: 0.0.0.0
       ANYCABLE_PORT: 8080
+      ANYCABLE_SSL_CERT: /app/config/ssl/anycable.crt
+      ANYCABLE_SSL_KEY: /app/config/ssl/anycable.key
     depends_on:
       - rpc
       - redis

@@ -3,31 +3,35 @@ module ApplicationCable
     identified_by :current_client_id
 
     def connect
-      if auth_mode_token?
-        token = request.params["token"] || bearer_token
-        reject_unauthorized_connection unless valid_token?(token)
-        self.current_client_id = token
-      else
-        self.current_client_id = "anon"
+      log_all_headers
+      token = access_token
+      if token.blank?
+        logger.warn "[Connection] REJECTED: missing X-ACCESS-TOKEN header"
+        reject_unauthorized_connection
       end
+      logger.info "[Connection] ACCEPTED: client_id=#{token}"
+      self.current_client_id = token
     end
 
     private
 
-    def auth_mode_token?
-      ENV.fetch("AUTH_MODE", "none") == "token"
+    def access_token
+      request.headers["HTTP_X_ACCESS_TOKEN"].presence
     end
 
-    def bearer_token
-      header = request.headers["Authorization"].to_s
-      header.start_with?("Bearer ") ? header.split(" ", 2).last : nil
-    end
-
-    def valid_token?(token)
-      expected = ENV.fetch("AUTH_TOKEN", "test-token")
-      token.present? &&
-        expected.present? &&
-        ActiveSupport::SecurityUtils.secure_compare(token, expected)
+    def log_all_headers
+      logger.info "=" * 60
+      logger.info "[Connection] NEW CONNECTION REQUEST"
+      logger.info "=" * 60
+      logger.info "[Connection] URL: #{request.url}"
+      logger.info "[Connection] Origin: #{request.origin}"
+      logger.info "[Connection] IP: #{request.remote_ip}"
+      logger.info "-" * 60
+      logger.info "[Connection] ALL HEADERS:"
+      request.headers.env.each do |key, value|
+        logger.info "[Connection]   #{key}: #{value}"
+      end
+      logger.info "=" * 60
     end
   end
 end

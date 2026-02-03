@@ -32,18 +32,16 @@ This repo provides a minimal Rails 8.1 + AnyCable server that exposes a `/cable`
 - action `ping(ts:)` -> transmit `pong` with server time
 - action `broadcast(message:)` -> broadcast to `presence:global`
 
-## Authentication (optional)
-Controlled by env:
+## Authentication (required)
 
-```
-AUTH_MODE=none   # default
-AUTH_MODE=token
-AUTH_TOKEN=test-token
+All WebSocket connections must include a non-empty `X-ACCESS-TOKEN` header. Connections without this header will be rejected.
+
+Example with wscat:
+```bash
+wscat -c wss://localhost:8080/cable --no-check -H "X-ACCESS-TOKEN: your-token-here"
 ```
 
-When `AUTH_MODE=token`, the connection must include a token via:
-- Query param `?token=...`
-- Header `Authorization: Bearer ...`
+The token value can be any non-empty string. The server uses it as the client identifier.
 
 ---
 
@@ -95,6 +93,40 @@ The Rails/AnyCable RPC containers use `ANYCABLE_HTTP_BROADCAST_URL=http://anycab
 
 ---
 
+## SSL Configuration (Local Development)
+
+For local development, you need to generate self-signed SSL certificates to enable `wss://`. The certificate files are **not included in the repository** and must be generated locally.
+
+### Generate SSL Certificates (Required)
+
+Before running Docker Compose for the first time, generate self-signed certificates:
+
+```bash
+mkdir -p config/ssl
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout config/ssl/anycable.key \
+  -out config/ssl/anycable.crt \
+  -subj "/C=US/ST=Dev/L=Local/O=Dev/CN=localhost" \
+  -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+```
+
+This creates:
+- `config/ssl/anycable.crt` - SSL certificate (valid for 365 days)
+- `config/ssl/anycable.key` - SSL private key
+
+> **Note:** These files are in `.gitignore` and will not be committed to version control.
+
+### How It Works
+
+The `docker-compose.yml` mounts the project directory into the `anycable-go` container and configures SSL via environment variables:
+- `ANYCABLE_SSL_CERT=/app/config/ssl/anycable.crt`
+- `ANYCABLE_SSL_KEY=/app/config/ssl/anycable.key`
+
+### Regenerating Certificates
+
+If your certificates expire or you need to regenerate them, simply run the `openssl` command above again.
+
 ## Test the WebSocket
 
 You can use any Action Cable client. For a quick manual test, use `wscat` or `websocat`.
@@ -113,7 +145,7 @@ Then send a subscribe + echo sequence:
 { printf '%s\n' \
   '{"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}' \
   '{"command":"message","identifier":"{\"channel\":\"TestChannel\"}","data":"{\"action\":\"echo\",\"payload\":{\"hello\":\"world\"}}"}'; \
-  sleep 1; } | websocat -v -n wss://localhost:8080/cable
+  sleep 1; } | websocat -v -n --insecure wss://localhost:8080/cable
 ```
 
 Expected output (example):
@@ -129,8 +161,7 @@ AnyCable will also emit periodic `ping` frames while the connection remains open
 ### Interactive example with `wscat`
 
 ```
-# connect
-wscat -c wss://localhost:8080/cable
+wscat -c wss://localhost:8080/cable --no-check
 
 # subscribe to TestChannel
 {"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}
@@ -155,13 +186,13 @@ docker compose up -d --build
 
 Terminal A:
 ```
-wscat -c wss://localhost:8080/cable
+wscat -c wss://localhost:8080/cable --no-check
 {"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}
 ```
 
 Terminal B:
 ```
-wscat -c wss://localhost:8080/cable
+wscat -c wss://localhost:8080/cable --no-check
 {"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}
 {"command":"message","identifier":"{\"channel\":\"TestChannel\"}","data":"{\"action\":\"broadcast\",\"message\":\"hello from B\"}"}
 ```

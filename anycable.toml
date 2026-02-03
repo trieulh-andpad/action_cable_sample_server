@@ -18,14 +18,18 @@ secret = "anycable-local-secret"
 presets = ["broker"]
 
 # Broadcasting adapters for app-to-clients messages.
-# You one of the specified adapters in the config/anycable.yml.
+# Using Redis for broadcasting (works better with SSL-enabled server).
 # Read more in https://docs.anycable.io/anycable-go/broadcasting.
-broadcast_adapters = ["http"]
+broadcast_adapters = ["redis"]
 
 # Pub/sub adapter for inter-node communication in a production cluster
 # IMPORTANT: In production, when running AnyCable in a cluster mode,
 # make sure to enable pub/sub adapter via the ANYCABLE_PUBSUB_ADAPTER env var
 # pubsub_adapter = "redis" # or "nats"
+
+# SSL configuration can be provided via environment variables:
+# ANYCABLE_SSL_CERT - path to the SSL certificate file
+# ANYCABLE_SSL_KEY - path to the SSL private key file
 
 [logging]
 debug = true
@@ -36,6 +40,8 @@ debug = true
 [rpc]
 implementation = "grpc"
 host = "localhost:50051"
+# Forward X-ACCESS-TOKEN header for authentication
+proxy_headers = ["cookie", "x-access-token"]
 
 
 # Signed and public streams configuration.
