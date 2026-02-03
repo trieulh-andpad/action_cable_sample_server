@@ -17,7 +17,7 @@ This repo provides a minimal Rails 8.1 + AnyCable server that exposes a `/cable`
 
 ## WebSocket Endpoint
 - Path: `/cable`
-- Default URL (AnyCable-Go): `ws://localhost:8080/cable`
+- Default URL (AnyCable-Go): `wss://localhost:8080/cable`
 
 ## Channels
 ### TestChannel
@@ -88,7 +88,7 @@ anycable-go --config ./anycable.toml
 docker compose up --build
 ```
 
-WebSocket endpoint: `ws://localhost:8080/cable`
+WebSocket endpoint: `wss://localhost:8080/cable`
 Redis is included in Compose to support AnyCable-Go.
 RPC is bound on `0.0.0.0:50051` in the container so AnyCable-Go can authenticate subscriptions.
 The Rails/AnyCable RPC containers use `ANYCABLE_HTTP_BROADCAST_URL=http://anycable-go:8080/_broadcast` to deliver broadcasts to AnyCable-Go.
@@ -113,7 +113,7 @@ Then send a subscribe + echo sequence:
 { printf '%s\n' \
   '{"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}' \
   '{"command":"message","identifier":"{\"channel\":\"TestChannel\"}","data":"{\"action\":\"echo\",\"payload\":{\"hello\":\"world\"}}"}'; \
-  sleep 1; } | websocat -v -n ws://localhost:8080/cable
+  sleep 1; } | websocat -v -n wss://localhost:8080/cable
 ```
 
 Expected output (example):
@@ -130,7 +130,7 @@ AnyCable will also emit periodic `ping` frames while the connection remains open
 
 ```
 # connect
-wscat -c ws://localhost:8080/cable
+wscat -c wss://localhost:8080/cable
 
 # subscribe to TestChannel
 {"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}
@@ -155,13 +155,13 @@ docker compose up -d --build
 
 Terminal A:
 ```
-wscat -c ws://localhost:8080/cable
+wscat -c wss://localhost:8080/cable
 {"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}
 ```
 
 Terminal B:
 ```
-wscat -c ws://localhost:8080/cable
+wscat -c wss://localhost:8080/cable
 {"command":"subscribe","identifier":"{\"channel\":\"TestChannel\"}"}
 {"command":"message","identifier":"{\"channel\":\"TestChannel\"}","data":"{\"action\":\"broadcast\",\"message\":\"hello from B\"}"}
 ```
